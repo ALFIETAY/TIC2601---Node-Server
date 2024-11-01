@@ -25,7 +25,61 @@ exports.getUserMeasurements = async (req, res) => {
     }
 };
 
-// Add measurement for user
+// Add a measurement for a user
+exports.addMeasurement = async (req, res) => {
+    try {
+        const { user_id, weight, bodyfat_percentage, waistline } = req.body;
 
+        // Validate required fields
+        if (!user_id || !weight || !bodyfat_percentage || !waistline) {
+            return res.status(400).json({ message: 'All fields are required.' });
+        }
 
-// Get latest user measurement 
+        // Set the current date
+        const currentDate = new Date().toISOString().split('T')[0]; // Format as YYYY-MM-DD
+
+        // Create a new measurement
+        const measurement = await Measurement.create({
+            user_id,
+            date: currentDate,
+            weight,
+            bodyfat_percentage: bodyfat_percentage,
+            waistline: waistline
+        });
+
+        res.status(201).json({
+            message: 'Measurement added successfully',
+            measurement
+        });
+    } catch (error) {
+        console.error("Error adding measurement:", error);
+        res.status(500).json({ message: 'Error adding measurement', error: error.message });
+    }
+};
+
+// Get the latest measurement for a user
+exports.getLatestMeasurement = async (req, res) => {
+    try {
+        const { user_id } = req.params;
+
+        // Find the latest measurement for the user based on date
+        const latestMeasurement = await Measurement.findOne({
+            where: { user_id },
+            order: [['date', 'DESC']], // Order by date in descending order to get the latest
+            limit: 1
+        });
+
+        // If no measurement found
+        if (!latestMeasurement) {
+            return res.status(404).json({ message: 'No measurements found for the specified user.' });
+        }
+
+        res.json({
+            message: 'Latest measurement retrieved successfully',
+            measurement: latestMeasurement
+        });
+    } catch (error) {
+        console.error("Error retrieving latest measurement:", error);
+        res.status(500).json({ message: 'Error retrieving latest measurement', error: error.message });
+    }
+};

@@ -165,3 +165,46 @@ exports.getExerciseHistory = async (req, res) => {
 };
 
 // Add sets/reps/weight for each exercise
+exports.addWorkoutExercise = async (req, res) => {
+    try {
+        const { workout_id, exercise_id, set_number, reps, weight, superset_id } = req.body;
+
+        // Validate required fields
+        if (!workout_id || !exercise_id || !set_number || !reps || !weight) {
+            return res.status(400).json({ message: 'workout_id, exercise_id, set_number, reps, and weight are required.' });
+        }
+
+        console.log("test")
+
+        // Check if the workout and exercise exist
+        const workout = await Workout.findByPk(workout_id);
+        const exercise = await Exercise.findByPk(exercise_id);
+
+        console.log(workout, " test" ,exercise)
+
+        if (!workout) {
+            return res.status(404).json({ message: 'Workout not found.' });
+        }
+        if (!exercise) {
+            return res.status(404).json({ message: 'Exercise not found.' });
+        }
+
+        // Create a new workout exercise entry
+        const workoutExercise = await WorkoutExercise.create({
+            workout_id,
+            exercise_id,
+            set_number,
+            reps,
+            weight,
+            superset_id: superset_id || null // Optional field
+        });
+
+        res.status(200).json({
+            message: 'Workout exercise added successfully',
+            workoutExercise
+        });
+    } catch (error) {
+        console.error("Error adding workout exercise:", error);
+        res.status(500).json({ message: 'Error adding workout exercise', error: error.message });
+    }
+};
