@@ -1,5 +1,6 @@
 const Measurement = require('../models/measurement');
 
+// Get measurement of user
 exports.getUserMeasurements = async (req, res) => {
     try {
         const { user_id } = req.params; // Extract user_id from URL parameters
@@ -23,3 +24,5 @@ exports.getUserMeasurements = async (req, res) => {
         res.status(500).json({ message: 'Error retrieving measurements', error: error.message });
     }
 };
+
+// Add measurement for user
