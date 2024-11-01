@@ -164,7 +164,4 @@ exports.getExerciseHistory = async (req, res) => {
     }
 };
 
-// Retrieve exercises by workout_id
-
-
 // Add sets/reps/weight for each exercise

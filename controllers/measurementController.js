@@ -26,3 +26,6 @@ exports.getUserMeasurements = async (req, res) => {
 };
 
 // Add measurement for user
+
+
+// Get latest user measurement 

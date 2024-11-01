@@ -7,7 +7,7 @@ const measurementRoutes = require('./routes/measurementRoutes'); // Import Measu
 const exerciseRoutes = require('./routes/exerciseRoutes'); // Import exercise routes
 
 const app = express();
-const port = 5000;
+const port = 3001;
 
 app.use(cors());
 app.use(express.json());
