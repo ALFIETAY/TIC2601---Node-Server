@@ -28,7 +28,7 @@ Before setting up the server, make sure you have the following installed:
 
 2. **Install dependencies**: Run the following command to install the necessary packages listed in `package.json`:
     ```bash
-    npm install
+    npm start
     ```
 
 ## Database Setup
