@@ -82,7 +82,7 @@ exports.getExercisesByWorkoutId = async (req, res) => {
     try {
         const { workout_id } = req.params;
 
-        // Find all exercises associated with the specified workout_id
+        // Find all exercises associated with the specified workout_id 
         const exercises = await WorkoutExercise.findAll({
             where: { workout_id },
             attributes: ['set_number', 'reps', 'weight'],
