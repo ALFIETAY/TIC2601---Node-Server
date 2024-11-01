@@ -4,6 +4,7 @@ const sequelize = require('./sequelize');
 const userRoutes = require('./routes/userRoutes');  // Import User routes
 const workoutRoutes = require('./routes/workoutRoutes'); // Import Workout routes
 const measurementRoutes = require('./routes/measurementRoutes'); // Import Measurement routes
+const exerciseRoutes = require('./routes/exerciseRoutes'); // Import exercise routes
 
 const app = express();
 const port = 5000;
@@ -20,6 +21,8 @@ app.use('/api/workouts', workoutRoutes);
 // Measurement routes
 app.use('/api/measurements', measurementRoutes);
 
+// Exercise routes
+app.use('/api/exercises', exerciseRoutes);
 
 // Connect to the database and sync models
 sequelize.sync().then(() => {

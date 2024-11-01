@@ -8,6 +8,9 @@ const router = express.Router();
 router.get('/schedule/:user_id', workoutController.getWorkoutSchedule);
 // GET route to get exercise history
 router.get('/exercise-history/:user_id/:exercise_id', workoutController.getExerciseHistory);
-
+// POST route to add a workout
+router.post('/add_workout', workoutController.addWorkout);
+// DELETE route to remove a workout
+router.delete('/:user_id/:workout_id', workoutController.deleteWorkout);
 
 module.exports = router;
