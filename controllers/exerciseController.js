@@ -150,7 +150,7 @@ exports.getExerciseHistory = async (req, res) => {
             weeklyBreakdown[week][primaryMuscle] += 1;
         });
 
-        // Return the response
+        // Return the response 
         const response = {
             user_id,
             weekly_exercise_breakdown: weeklyBreakdown

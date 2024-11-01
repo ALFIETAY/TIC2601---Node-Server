@@ -88,7 +88,7 @@ exports.login = async (req, res) => {
     }
 };
 
-// Update profile function
+// Update profile function 
 exports.updateProfile = async (req, res) => {
     try {
         const { email, password } = req.body;

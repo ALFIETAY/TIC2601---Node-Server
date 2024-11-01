@@ -12,7 +12,7 @@ const port = 3001;
 app.use(cors());
 app.use(express.json());
 
-// User routes
+// User routes 
 app.use('/api/users', userRoutes);
 
 // Workout routes
