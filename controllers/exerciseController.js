@@ -150,7 +150,7 @@ exports.getExerciseHistory = async (req, res) => {
             weeklyBreakdown[week][primaryMuscle] += 1;
         });
 
-        // Return the response
+        // Return the response 
         const response = {
             user_id,
             weekly_exercise_breakdown: weeklyBreakdown
@@ -163,8 +163,5 @@ exports.getExerciseHistory = async (req, res) => {
         res.status(500).json({ message: 'Error retrieving exercise history', error: error.message });
     }
 };
-
-// Retrieve exercises by workout_id
-
 
 // Add sets/reps/weight for each exercise

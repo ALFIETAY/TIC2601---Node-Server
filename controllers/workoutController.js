@@ -4,7 +4,7 @@ const WorkoutExercise = require('../models/workout_exercise');
 const Exercise = require('../models/exercise');
 const { Op } = require('sequelize');
 
-// Get user's workout schedule
+// Get user's workout schedule - Check if Deload is True/ False depending on date
 exports.getWorkoutSchedule = async (req, res) => {
     try {
         const { user_id } = req.params; // Get user_id from route parameters
@@ -77,5 +77,44 @@ exports.deleteWorkout = async (req, res) => {
     }
 };
 
+// Retrieve exercises by workout_id
+exports.getExercisesByWorkoutId = async (req, res) => {
+    try {
+        const { workout_id } = req.params;
 
+        // Find all exercises associated with the specified workout_id 
+        const exercises = await WorkoutExercise.findAll({
+            where: { workout_id },
+            attributes: ['set_number', 'reps', 'weight'],
+            include: [
+                {
+                    model: Exercise,
+                    attributes: ['exercise_name', 'primary_muscle', 'secondary_muscle']
+                }
+            ],
+            order: [['set_number', 'ASC']] // Order by set number if desired
+        });
 
+        // If no exercises found, return 404
+        if (!exercises.length) {
+            return res.status(404).json({ message: 'No exercises found for the specified workout_id.' });
+        }
+
+        // Format response
+        const response = exercises.map(record => ({
+            set_number: record.set_number,
+            reps: record.reps,
+            weight: record.weight,
+            exercise_name: record.Exercise.exercise_name,
+            primary_muscle: record.Exercise.primary_muscle,
+            secondary_muscle: record.Exercise.secondary_muscle
+        }));
+
+        res.json({ workout_id, exercises: response });
+    } catch (error) {
+        console.error("Error retrieving exercises by workout_id:", error);
+        res.status(500).json({ message: 'Error retrieving exercises', error: error.message });
+    }
+};
+
+// Add deload or fatigue rating
