@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const moment = require('moment-timezone');
 const User = require('../models/user');
 
+// No of Hashing rounds
 const saltRounds = 10;
 
 // Signup function
