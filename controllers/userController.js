@@ -54,9 +54,23 @@ exports.signup = async (req, res) => {
 exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
+        
+        // Log email and password being used
+        console.log("Login attempt with email:", email);
+
         const user = await User.findOne({ where: { email } });
 
-        if (!user || !(await bcrypt.compare(password, user.password))) {
+        // Check if user exists
+        if (!user) {
+            console.log("User not found with email:", email);
+            return res.status(401).json({ message: 'Invalid email or password' });
+        }
+
+        // Check password
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+
+        if (!isPasswordValid) {
+            console.log("Invalid password for email:", email);
             return res.status(401).json({ message: 'Invalid email or password' });
         }
 
@@ -84,6 +98,7 @@ exports.login = async (req, res) => {
             }
         });
     } catch (error) {
+        console.error("Error during login:", error);
         res.status(500).json({ message: 'Error logging in', error });
     }
 };

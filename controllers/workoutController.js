@@ -92,7 +92,6 @@ exports.addWorkout = async (req, res) => {
     }
 };
 
-
 // Remove workouts
 exports.deleteWorkout = async (req, res) => {
     try {
@@ -161,4 +160,33 @@ exports.getExercisesByWorkoutId = async (req, res) => {
     }
 };
 
-// Add deload or fatigue rating
+// Update fatigue rating for a specific workout
+exports.updateFatigueRating = async (req, res) => {
+    try {
+        const { workout_id } = req.params; // Get workout_id from route parameters
+        const { fatigue_rating } = req.body; // Get new fatigue rating from request body
+
+        // Validate that fatigue_rating is provided
+        if (fatigue_rating === undefined) {
+            return res.status(400).json({ message: 'Fatigue rating is required.' });
+        }
+
+        // Find the workout by workout_id
+        const workout = await Workout.findByPk(workout_id);
+        if (!workout) {
+            return res.status(404).json({ message: 'Workout not found.' });
+        }
+
+        // Update the fatigue rating
+        workout.fatigue_rating = fatigue_rating;
+        await workout.save();
+
+        res.status(200).json({
+            message: 'Fatigue rating updated successfully',
+            workout
+        });
+    } catch (error) {
+        console.error('Error updating fatigue rating:', error);
+        res.status(500).json({ message: 'Error updating fatigue rating', error: error.message });
+    }
+};
