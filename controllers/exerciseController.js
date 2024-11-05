@@ -116,12 +116,7 @@ exports.getExerciseHistory = async (req, res) => {
         });
 
         // Step 3: Aggregate sets by primary muscle and week
-        const weeklyBreakdown = {
-            wk1: {},
-            wk2: {},
-            wk3: {},
-            wk4: {}
-        };
+        const muscleBreakdown = {};
 
         exercises.forEach(record => {
             const workoutDate = workoutDates[record.workout_id];
@@ -141,19 +136,19 @@ exports.getExerciseHistory = async (req, res) => {
                 return;
             }
 
-            // Initialize if the muscle is not in the week object
-            if (!weeklyBreakdown[week][primaryMuscle]) {
-                weeklyBreakdown[week][primaryMuscle] = 0;
+            // Initialize if the muscle group or week is not in the structure
+            if (!muscleBreakdown[primaryMuscle]) {
+                muscleBreakdown[primaryMuscle] = { wk1: 0, wk2: 0, wk3: 0, wk4: 0 };
             }
 
             // Increment the set count for this muscle group in the determined week
-            weeklyBreakdown[week][primaryMuscle] += 1;
+            muscleBreakdown[primaryMuscle][week] += 1;
         });
 
-        // Return the response 
+        // Return the response in the specified format
         const response = {
             user_id,
-            weekly_exercise_breakdown: weeklyBreakdown
+            muscle_group_breakdown: muscleBreakdown
         };
 
         console.log("Final Response:", response);
@@ -163,6 +158,7 @@ exports.getExerciseHistory = async (req, res) => {
         res.status(500).json({ message: 'Error retrieving exercise history', error: error.message });
     }
 };
+
 
 // Add sets/reps/weight for each exercise
 exports.addWorkoutExercise = async (req, res) => {
