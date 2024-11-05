@@ -13,7 +13,14 @@ router.post('/add_workout', workoutController.addWorkout);
 // DELETE route to remove a workout
 router.delete('/:user_id/:workout_id', workoutController.deleteWorkout);
 
+// Route to update fatigue rating
+router.put('/fatigue_rating/:workout_id', workoutController.updateFatigueRating);
+
 // GET route to retrieve exercise by workout_id 
 router.get('/exercises/:workout_id', workoutController.getExercisesByWorkoutId);
+
+// DELETE route to delete workout_exercises by id
+router.delete('/workout_exercises/:user_id/:workout_id/:exercise_id', workoutController.deleteWorkoutExercise);
+
 
 module.exports = router;
