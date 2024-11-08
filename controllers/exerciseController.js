@@ -62,7 +62,6 @@ exports.deleteExercise = async (req, res) => {
 exports.getExerciseHistory = async (req, res) => {
     try {
         const { user_id } = req.params;
-
         // Calculate start and end dates for each of the last 4 weeks
         const today = new Date();
         const weekRanges = [];
@@ -89,7 +88,6 @@ exports.getExerciseHistory = async (req, res) => {
         if (!userWorkouts.length) {
             return res.status(404).json({ message: 'No workouts found for the specified user in the past 4 weeks.' });
         }
-
         // Extract workout_ids and dates
         const workoutIds = userWorkouts.map(workout => workout.workout_id);
         const workoutDates = userWorkouts.reduce((acc, workout) => {
@@ -204,3 +202,20 @@ exports.addWorkoutExercise = async (req, res) => {
         res.status(500).json({ message: 'Error adding workout exercise', error: error.message });
     }
 };
+
+//get all exercises
+exports.getExercises = async (req, res) => {
+    try{
+        const { user_id } = req.params;
+        const exercises = await Exercise.findAll({
+            where: {
+                user_id: user_id
+            },
+            attributes: ['exercise_id', 'exercise_name', 'primary_muscle', 'secondary_muscle'],
+        });
+        res.status(200).json({user_id, exercises});
+    }catch (error){
+        console.error("Error getting exercises: ", error);
+        res.status(500).json({ message: 'Error getting exercises', error: error.message});
+    }
+}

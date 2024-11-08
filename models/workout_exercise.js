@@ -5,6 +5,7 @@ const Workout = require('./workout');
 const Exercise = require('./exercise');
 
 const WorkoutExercise = sequelize.define('WorkoutExercise', {
+  id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement:true},
   workout_id: { type: DataTypes.INTEGER, references: { model: Workout, key: 'workout_id' } },
   exercise_id: { type: DataTypes.INTEGER, references: { model: Exercise, key: 'exercise_id' } },
   set_number: { type: DataTypes.INTEGER, allowNull: false },

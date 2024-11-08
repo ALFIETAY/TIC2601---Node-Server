@@ -29,7 +29,7 @@ exports.getWorkoutSchedule = async (req, res) => {
 
         // Step 3: Check each workout against the deload periods
         const workoutSchedule = workouts.map((workout) => {
-            let deloadStatus = "Not Active";
+            let deloadStatus = false;
             
             // Loop through each deload period to see if the workout date falls within any period
             for (const deload of deloadHistories) {
@@ -37,7 +37,7 @@ exports.getWorkoutSchedule = async (req, res) => {
                     new Date(workout.workout_date) >= new Date(deload.start_date) &&
                     new Date(workout.workout_date) <= new Date(deload.end_date)
                 ) {
-                    deloadStatus = "Active";
+                    deloadStatus = true;
                     break;
                 }
             }
@@ -127,7 +127,7 @@ exports.getExercisesByWorkoutId = async (req, res) => {
         // Find all exercises associated with the specified workout_id 
         const exercises = await WorkoutExercise.findAll({
             where: { workout_id },
-            attributes: ['id', 'set_number', 'reps', 'weight'],
+            attributes: ['id', 'set_number', 'reps', 'weight','superset_id'],
             include: [
                 {
                     model: Exercise,
@@ -150,7 +150,8 @@ exports.getExercisesByWorkoutId = async (req, res) => {
             weight: record.weight,
             exercise_name: record.Exercise.exercise_name,
             primary_muscle: record.Exercise.primary_muscle,
-            secondary_muscle: record.Exercise.secondary_muscle
+            secondary_muscle: record.Exercise.secondary_muscle,
+            superset_id:record.superset_id
         }));
 
         res.json({ workout_id, exercises: response });
@@ -194,18 +195,12 @@ exports.updateFatigueRating = async (req, res) => {
 // Delete WorkoutExercise by user_id, workout_id, and exercise_id
 exports.deleteWorkoutExercise = async (req, res) => {
     try {
-        const { user_id, workout_id, exercise_id } = req.params; // Retrieve user_id, workout_id, and exercise_id from URL parameters
-
+        // const { user_id, workout_id, exercise_id } = req.params; // Retrieve user_id, workout_id, and exercise_id from URL parameters
+        const { id } = req.params;
         // Find the WorkoutExercise entry using user_id, workout_id, and exercise_id
         const workoutExercise = await WorkoutExercise.findOne({
             where: {
-                workout_id,
-                exercise_id
-            },
-            include: {
-                model: Workout,
-                where: { user_id }, // Ensure the workout belongs to the specified user
-                attributes: []
+                id: id
             }
         });
 
@@ -225,4 +220,15 @@ exports.deleteWorkoutExercise = async (req, res) => {
     }
 };
 
+
+exports.get = async (req, res) =>{
+    const { id } = req.params;
+    console.log(id);
+    const workoutExercise = await WorkoutExercise.findOne({
+        where: {
+            id
+        }
+    });
+    res.json(workoutExercise);
+}
 
