@@ -192,11 +192,11 @@ exports.updateFatigueRating = async (req, res) => {
     }
 };
 
-// Delete WorkoutExercise by user_id, workout_id, and exercise_id
+// Delete WorkoutExercise by id
 exports.deleteWorkoutExercise = async (req, res) => {
     try {
-        // const { user_id, workout_id, exercise_id } = req.params; // Retrieve user_id, workout_id, and exercise_id from URL parameters
-        const { id } = req.params;
+        const { id } = req.params; // Retrieve user_id, workout_id, and exercise_id from URL parameters
+        
         // Find the WorkoutExercise entry using user_id, workout_id, and exercise_id
         const workoutExercise = await WorkoutExercise.findOne({
             where: {
@@ -206,7 +206,7 @@ exports.deleteWorkoutExercise = async (req, res) => {
 
         // Check if the specified entry exists
         if (!workoutExercise) {
-            return res.status(404).json({ message: 'Workout exercise not found for the specified user, workout, and exercise IDs.' });
+            return res.status(404).json({ message: 'Workout exercise not found for the ID.' });
         }
 
         // Delete the found entry
@@ -219,16 +219,3 @@ exports.deleteWorkoutExercise = async (req, res) => {
         res.status(500).json({ message: 'Error deleting workout exercise', error: error.message });
     }
 };
-
-
-exports.get = async (req, res) =>{
-    const { id } = req.params;
-    console.log(id);
-    const workoutExercise = await WorkoutExercise.findOne({
-        where: {
-            id
-        }
-    });
-    res.json(workoutExercise);
-}
-
