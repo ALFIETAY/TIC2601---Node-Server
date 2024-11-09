@@ -57,7 +57,9 @@ exports.getDeloadStatus = async (req, res) => {
             );
             res.json({
                 user_id,
-                deload: "Active"
+                deload: true,
+                start_date: activeDeload.start_date,
+                end_date: activeDeload.end_date
             });
         } else {
             // Set deload_flag to false for workouts outside deload period
@@ -72,7 +74,7 @@ exports.getDeloadStatus = async (req, res) => {
             );
             res.json({
                 user_id,
-                deload: "Not Active"
+                deload: false
             });
         }
     } catch (error) {

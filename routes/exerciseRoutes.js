@@ -14,4 +14,7 @@ router.get('/exercise_history/:user_id', exerciseController.getExerciseHistory);
 // Route to add a set, reps, and weight for a specific workout and exercise
 router.post('/record_workout_exercise', exerciseController.addWorkoutExercise);
 
+// Route to get all exercises of user
+router.get('/all_exercise/:user_id', exerciseController.getExercises);
+
 module.exports = router;
