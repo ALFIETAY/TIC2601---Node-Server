@@ -37,12 +37,17 @@ exports.signup = async (req, res) => {
             created_at: createdAtGMT8
         });
 
-        // Log the created_at timestamp for debugging
-        console.log(`User created at: ${createdAtGMT8}`);
-
+        // Generate JWT token
+        const token = jwt.sign(
+            { userId: user.user_id, email: user.email }, // Payload
+            JWT_SECRET, // Secret key
+            { expiresIn: TOKEN_EXPIRATION } // Token expiration time
+        );
+        
         // Successful response (excluding password)
         res.status(200).json({
             message: 'User registered successfully',
+            token,
             user: {
                 userId: user.user_id,
                 username: user.username,
@@ -117,8 +122,8 @@ exports.login = async (req, res) => {
     }
 };
 
-// Update profile function 
-exports.updateProfile = async (req, res) => {
+// Forget password function 
+exports.forgetPass = async (req, res) => {
     try {
         const { email, password } = req.body;
 
@@ -139,8 +144,8 @@ exports.updateProfile = async (req, res) => {
         // Update user profile with provided fields
         await User.update(updateFields, { where: { email } });
 
-        res.json({ message: 'Profile updated successfully' });
+        res.json({ message: 'Password updated successfully' });
     } catch (error) {
-        res.status(500).json({ message: 'Error updating profile', error });
+        res.status(500).json({ message: 'Error updating password', error });
     }
 };
