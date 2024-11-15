@@ -2,7 +2,13 @@
 const bcrypt = require('bcrypt');
 const moment = require('moment-timezone');
 const User = require('../models/user');
+const jwt = require('jsonwebtoken');
+require('dotenv').config({ path: 'key.env' });
 
+// Server side secret key
+const JWT_SECRET = process.env.JWT_SECRET;
+// Token expiry time
+const TOKEN_EXPIRATION = '1h'; 
 // No of Hashing rounds
 const saltRounds = 10;
 
@@ -87,9 +93,17 @@ exports.login = async (req, res) => {
             return res.status(500).json({ message: 'Failed to save last login time', error: saveError });
         }
 
-        // Successful login response
+        // Generate JWT token
+        const token = jwt.sign(
+            { userId: user.user_id, email: user.email }, // Payload
+            JWT_SECRET, // Secret key
+            { expiresIn: TOKEN_EXPIRATION } // Token expiration time
+        );
+
+        // Successful login response with token
         res.json({
             message: 'Login successful',
+            token, // Send token in response
             user: {
                 userId: user.user_id,
                 username: user.username,

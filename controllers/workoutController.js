@@ -8,7 +8,7 @@ const { Op } = require('sequelize');
 // Get user's workout schedule - Check if Deload is Active or Not Active depending on date
 exports.getWorkoutSchedule = async (req, res) => {
     try {
-        const { user_id } = req.params;
+        const user_id = req.userId; // Use the userId from JWT token
 
         // Step 1: Retrieve all workouts for the user, ordered by date
         const workouts = await Workout.findAll({
@@ -64,12 +64,8 @@ exports.getWorkoutSchedule = async (req, res) => {
 // Add workout
 exports.addWorkout = async (req, res) => {
     try {
-        const { user_id, fatigue_rating, deload_flag } = req.body;
-
-        // Validate required fields
-        if (!user_id) {
-            return res.status(400).json({ message: 'User ID is required.' });
-        }
+        const user_id = req.userId; // Use userId from JWT token
+        const { fatigue_rating, deload_flag } = req.body;
 
         // Set workout_date to the current date
         const currentDate = new Date().toISOString().split('T')[0]; // Format as YYYY-MM-DD
@@ -95,7 +91,8 @@ exports.addWorkout = async (req, res) => {
 // Remove workouts
 exports.deleteWorkout = async (req, res) => {
     try {
-        const { workout_id, user_id } = req.params;
+        const user_id = req.userId; // Use userId from JWT token
+        const { workout_id } = req.params;
 
         // Find the workout by ID and user ID
         const workout = await Workout.findOne({
@@ -122,12 +119,19 @@ exports.deleteWorkout = async (req, res) => {
 // Retrieve exercises by workout_id
 exports.getExercisesByWorkoutId = async (req, res) => {
     try {
+        const user_id = req.userId; // Use userId from JWT token
         const { workout_id } = req.params;
 
-        // Find all exercises associated with the specified workout_id 
+        // Ensure the workout belongs to the user
+        const workout = await Workout.findOne({ where: { workout_id, user_id } });
+        if (!workout) {
+            return res.status(403).json({ message: 'Access denied for this workout.' });
+        }
+
+        // Find all exercises associated with the specified workout_id
         const exercises = await WorkoutExercise.findAll({
             where: { workout_id },
-            attributes: ['id', 'set_number', 'reps', 'weight','superset_id'],
+            attributes: ['id', 'set_number', 'reps', 'weight', 'superset_id'],
             include: [
                 {
                     model: Exercise,
@@ -137,12 +141,10 @@ exports.getExercisesByWorkoutId = async (req, res) => {
             order: [['set_number', 'ASC']] // Order by set number if desired
         });
 
-        // If no exercises found, return 404
         if (!exercises.length) {
             return res.status(404).json({ message: 'No exercises found for the specified workout_id.' });
         }
 
-        // Format response
         const response = exercises.map(record => ({
             id: record.id,
             set_number: record.set_number,
@@ -151,7 +153,7 @@ exports.getExercisesByWorkoutId = async (req, res) => {
             exercise_name: record.Exercise.exercise_name,
             primary_muscle: record.Exercise.primary_muscle,
             secondary_muscle: record.Exercise.secondary_muscle,
-            superset_id:record.superset_id
+            superset_id: record.superset_id
         }));
 
         res.json({ workout_id, exercises: response });
@@ -164,21 +166,19 @@ exports.getExercisesByWorkoutId = async (req, res) => {
 // Update fatigue rating for a specific workout
 exports.updateFatigueRating = async (req, res) => {
     try {
-        const { workout_id } = req.params; // Get workout_id from route parameters
-        const { fatigue_rating } = req.body; // Get new fatigue rating from request body
+        const user_id = req.userId; // Use userId from JWT token
+        const { workout_id } = req.params;
+        const { fatigue_rating } = req.body;
 
-        // Validate that fatigue_rating is provided
         if (fatigue_rating === undefined) {
             return res.status(400).json({ message: 'Fatigue rating is required.' });
         }
 
-        // Find the workout by workout_id
-        const workout = await Workout.findByPk(workout_id);
+        const workout = await Workout.findOne({ where: { workout_id, user_id } });
         if (!workout) {
-            return res.status(404).json({ message: 'Workout not found.' });
+            return res.status(404).json({ message: 'Workout not found or access denied.' });
         }
 
-        // Update the fatigue rating
         workout.fatigue_rating = fatigue_rating;
         await workout.save();
 
@@ -195,24 +195,26 @@ exports.updateFatigueRating = async (req, res) => {
 // Delete WorkoutExercise by id
 exports.deleteWorkoutExercise = async (req, res) => {
     try {
-        const { id } = req.params; // Retrieve user_id, workout_id, and exercise_id from URL parameters
-        
-        // Find the WorkoutExercise entry using user_id, workout_id, and exercise_id
+        const user_id = req.userId; // Use userId from JWT token
+        const { id } = req.params;
+
+        // Find the WorkoutExercise entry and verify it belongs to the user
         const workoutExercise = await WorkoutExercise.findOne({
-            where: {
-                id: id
-            }
+            where: { id },
+            include: [
+                {
+                    model: Workout,
+                    where: { user_id },
+                    attributes: [] // Only to ensure it belongs to the user
+                }
+            ]
         });
 
-        // Check if the specified entry exists
         if (!workoutExercise) {
-            return res.status(404).json({ message: 'Workout exercise not found for the ID.' });
+            return res.status(404).json({ message: 'Workout exercise not found or access denied.' });
         }
 
-        // Delete the found entry
         await workoutExercise.destroy();
-        
-        // Send success response
         res.status(200).json({ message: 'Workout exercise deleted successfully.' });
     } catch (error) {
         console.error("Error deleting workout exercise:", error);
