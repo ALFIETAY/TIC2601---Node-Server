@@ -5,6 +5,11 @@ exports.getUserMeasurements = async (req, res) => {
     try {
         const { user_id } = req.params; // Extract user_id from URL parameters
 
+        // Ensure the `user_id` in the request matches the authenticated `userId`
+        if (parseInt(user_id) !== req.userId) {
+            return res.status(403).json({ message: 'Access denied: unauthorized user' });
+        }
+
         // Query measurements for the specified user_id
         const measurements = await Measurement.findAll({
             where: { user_id },
@@ -40,7 +45,7 @@ exports.addMeasurement = async (req, res) => {
 
         // Create a new measurement
         const measurement = await Measurement.create({
-            user_id,
+            user_id: req.userId, // User user_id from token
             date: currentDate,
             weight,
             bodyfat_percentage: bodyfat_percentage,
@@ -61,6 +66,11 @@ exports.addMeasurement = async (req, res) => {
 exports.getLatestMeasurement = async (req, res) => {
     try {
         const { user_id } = req.params;
+
+        // Ensure the `user_id` in the request matches the authenticated `userId`
+        if (parseInt(user_id) !== req.userId) {
+            return res.status(403).json({ message: 'Access denied: unauthorized user' });
+        }
 
         // Find the latest measurement for the user based on date
         const latestMeasurement = await Measurement.findOne({

@@ -6,7 +6,8 @@ const WorkoutExercise = require('../models/workout_exercise');
 //Add exercise
 exports.addExercise = async (req, res) => {
     try {
-        const { user_id, exercise_name, primary_muscle, secondary_muscle } = req.body;
+        const {exercise_name, primary_muscle, secondary_muscle } = req.body;
+        const user_id = req.userId; // Get user_id from JWT token
 
         // Validate required fields
         if (!exercise_name || !primary_muscle) {
@@ -15,7 +16,7 @@ exports.addExercise = async (req, res) => {
 
         // Create a new exercise
         const exercise = await Exercise.create({
-            user_id: user_id || null, // Allows shared exercises with user_id as NULL
+            user_id,
             exercise_name,
             primary_muscle,
             secondary_muscle: secondary_muscle || null
@@ -34,7 +35,8 @@ exports.addExercise = async (req, res) => {
 // Remove exercise
 exports.deleteExercise = async (req, res) => {
     try {
-        const { user_id, exercise_id } = req.params;
+        const {exercise_id } = req.params;
+        const user_id = req.userId; // Get user_id from JWT token
 
         // Find the exercise by ID and user ID
         const exercise = await Exercise.findOne({
@@ -61,7 +63,8 @@ exports.deleteExercise = async (req, res) => {
 // Get total no of sets for each muscle group in the past 4 weeks
 exports.getExerciseHistory = async (req, res) => {
     try {
-        const { user_id } = req.params;
+        const user_id = req.userId; // Get user_id from JWT token
+
         // Calculate start and end dates for each of the last 4 weeks
         const today = new Date();
         const weekRanges = [];
@@ -163,18 +166,12 @@ exports.addWorkoutExercise = async (req, res) => {
     try {
         const { workout_id, exercise_id, set_number, reps, weight, superset_id } = req.body;
 
-        // Validate required fields
         if (!workout_id || !exercise_id || !set_number || !reps || !weight) {
             return res.status(400).json({ message: 'workout_id, exercise_id, set_number, reps, and weight are required.' });
         }
 
-        console.log("test")
-
-        // Check if the workout and exercise exist
         const workout = await Workout.findByPk(workout_id);
         const exercise = await Exercise.findByPk(exercise_id);
-
-        console.log(workout, " test" ,exercise)
 
         if (!workout) {
             return res.status(404).json({ message: 'Workout not found.' });
@@ -183,14 +180,13 @@ exports.addWorkoutExercise = async (req, res) => {
             return res.status(404).json({ message: 'Exercise not found.' });
         }
 
-        // Create a new workout exercise entry
         const workoutExercise = await WorkoutExercise.create({
             workout_id,
             exercise_id,
             set_number,
             reps,
             weight,
-            superset_id: superset_id || null // Optional field
+            superset_id: superset_id || null
         });
 
         res.status(200).json({
@@ -203,19 +199,17 @@ exports.addWorkoutExercise = async (req, res) => {
     }
 };
 
-//get all exercises
+// Get all exercises
 exports.getExercises = async (req, res) => {
-    try{
-        const { user_id } = req.params;
+    try {
+        const user_id = req.userId; // Get user_id from JWT token
         const exercises = await Exercise.findAll({
-            where: {
-                user_id: user_id
-            },
+            where: { user_id },
             attributes: ['exercise_id', 'exercise_name', 'primary_muscle', 'secondary_muscle'],
         });
-        res.status(200).json({user_id, exercises});
-    }catch (error){
-        console.error("Error getting exercises: ", error);
-        res.status(500).json({ message: 'Error getting exercises', error: error.message});
+        res.status(200).json({ user_id, exercises });
+    } catch (error) {
+        console.error("Error getting exercises:", error);
+        res.status(500).json({ message: 'Error getting exercises', error: error.message });
     }
-}
+};

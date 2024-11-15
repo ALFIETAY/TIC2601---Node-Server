@@ -5,11 +5,11 @@ const { Op } = require('sequelize');
 // Add deload period
 exports.addDeloadPeriod = async (req, res) => {
     try {
-        const { user_id, start_date, end_date } = req.body;
+        const { start_date, end_date } = req.body;
+        const user_id = req.userId; // Get user_id from JWT token
 
-        // Validation
-        if (!user_id || !start_date || !end_date) {
-            return res.status(400).json({ message: 'user_id, start_date, and end_date are required.' });
+        if (!start_date || !end_date) {
+            return res.status(400).json({ message: 'start_date and end_date are required.' });
         }
 
         // Create a new deload period
@@ -32,7 +32,7 @@ exports.addDeloadPeriod = async (req, res) => {
 // Get deload status for user and update deload_flag if necessary
 exports.getDeloadStatus = async (req, res) => {
     try {
-        const { user_id } = req.params;
+        const user_id = req.userId; // Get user_id from JWT token
         const currentDate = new Date();
 
         // Check for any active deload period for the user
