@@ -9,6 +9,7 @@ const Workout = sequelize.define('Workout', {
   workout_date: { type: DataTypes.DATEONLY, allowNull: false },
   fatigue_rating: { type: DataTypes.DECIMAL(3, 2) },
   deload_flag: { type: DataTypes.BOOLEAN, defaultValue: false },
+  workout_time: { type: DataTypes.TIME, allowNull: false }
 }, {
   tableName: 'Workouts',
   timestamps: false,
