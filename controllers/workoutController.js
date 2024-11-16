@@ -3,6 +3,7 @@ const Workout = require('../models/workout');
 const WorkoutExercise = require('../models/workout_exercise');
 const Exercise = require('../models/exercise');
 const DeloadHistory = require('../models/deload_history');
+const moment = require('moment-timezone');
 const { Op } = require('sequelize');
 
 // Get user's workout schedule - Check if Deload is Active or Not Active depending on date
@@ -13,8 +14,8 @@ exports.getWorkoutSchedule = async (req, res) => {
         // Step 1: Retrieve all workouts for the user, ordered by date
         const workouts = await Workout.findAll({
             where: { user_id },
-            attributes: ['workout_id', 'workout_date', 'fatigue_rating', 'deload_flag'],
-            order: [['workout_date', 'DESC']]
+            attributes: ['workout_id', 'workout_date', 'workout_time', 'fatigue_rating', 'deload_flag'],
+            order: [['workout_date', 'DESC'], ['workout_time', 'DESC']]
         });
 
         if (!workouts.length) {
@@ -42,12 +43,13 @@ exports.getWorkoutSchedule = async (req, res) => {
                 }
             }
 
-            // Return the workout object with the deload status
+            // Return the workout object with the deload status and workout time
             return {
                 workout_id: workout.workout_id,
                 workout_date: workout.workout_date,
+                workout_time: workout.workout_time,
                 fatigue_rating: workout.fatigue_rating,
-                deload: deloadStatus // Set to "Active" or "Not Active"
+                deload: deloadStatus ? "Active" : "Not Active" // Set to "Active" or "Not Active"
             };
         });
 
@@ -69,13 +71,15 @@ exports.addWorkout = async (req, res) => {
 
         // Set workout_date to the current date
         const currentDate = new Date().toISOString().split('T')[0]; // Format as YYYY-MM-DD
+        const createdAtGMT8 = moment().tz("Asia/Singapore").format("HH:mm:ss");
 
         // Create a new workout
         const workout = await Workout.create({
             user_id,
             workout_date: currentDate,
             fatigue_rating: fatigue_rating || null,
-            deload_flag: deload_flag || false
+            deload_flag: deload_flag || false,
+            workout_time: createdAtGMT8
         });
 
         res.status(200).json({
