@@ -49,7 +49,7 @@ exports.getWorkoutSchedule = async (req, res) => {
                 workout_date: workout.workout_date,
                 workout_time: workout.workout_time,
                 fatigue_rating: workout.fatigue_rating,
-                deload: deloadStatus ? "Active" : "Not Active" // Set to "Active" or "Not Active"
+                deload: deloadStatus // Set to "Active" or "Not Active"
             };
         });
 

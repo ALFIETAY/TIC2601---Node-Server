@@ -9,7 +9,7 @@ const supersetRoutes = require('./routes/supersetRoutes'); // Import deload rout
 const exerciseRoutes = require('./routes/exerciseRoutes'); // Import exercise routes
 
 const app = express();
-const port = 5001;
+const port = 3001;
 
 app.use(cors());
 app.use(express.json());
